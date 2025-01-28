@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .question {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .options {
+      list-style: none;
+      padding: 0;
+    }
+    .options li {
+      margin-bottom: 10px;
+    }
+    .options input {
+      margin-right: 10px;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color:#0056b3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .score {
+      font-size: 24px;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Game</h1>
+    <div id="quiz">
+      <p class="question" id="question"></p>
+      <ul class="options" id="options"></ul>
+      <div class="button-container">
+        <button id="prev" onclick="prevQuestion()">Previous</button>
+        <button id="next" onclick="nextQuestion()">Next</button>
+        <button id="submit" onclick="submitQuiz()" style="display: none;">Submit</button>
+      </div>
+    </div>
+    <div id="score" class="score" style="display: none;"></div>     
+  </div>
+
+  <script>
+    // Quiz Questions
+    const questions = [
+    { question: "Question 1: What is 2 + 2?", options: ["3", "4", "5", "6"], answer: 1 },
+    { question: "Question 2: What is the capital of France?", options: ["Rome", "Madrid", "Paris", "Berlin"], answer: 2 },
+    { question: "Question 3: Who wrote 'Romeo and Juliet'?", options: ["Shakespeare", "Hemingway", "Fitzgerald", "Dickens"], answer: 0 },
+    { question: "Question 4: What is the chemical symbol for water?", options: ["H2O", "O2", "CO2", "NaCl"], answer: 0 },
+    { question: "Question 5: What planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: 1 },
+    { question: "Question 6: What is the largest mammal?", options: ["Elephant", "Blue Whale", "Giraffe", "Polar Bear"], answer: 1 },
+    { question: "Question 7: What is 10 / 2?", options: ["3", "4", "5", "6"], answer: 2 },
+    { question: "Question 8: What is the square root of 64?", options: ["6", "7", "8", "9"], answer: 2 },
+    { question: "Question 9: Who painted the Mona Lisa?", options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"], answer: 2 },
+    { question: "Question 10: What is the capital of Japan?", options: ["Tokyo", "Beijing", "Seoul", "Bangkok"], answer: 0 },
+    { question: "Question 11: What is the boiling point of water?", options: ["90°C", "100°C", "120°C", "80°C"], answer: 1 },
+    { question: "Question 12: Who discovered gravity?", options: ["Einstein", "Newton", "Galileo", "Tesla"], answer: 1 },
+    { question: "Question 13: What is the largest ocean?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], answer: 3 },
+    { question: "Question 14: How many continents are there?", options: ["5", "6", "7", "8"], answer: 2 },
+    { question: "Question 15: What is the smallest prime number?", options: ["1", "2", "3", "5"], answer: 1 },
+    { question: "Question 16: What is the speed of light?", options: ["300,000 km/s", "150,000 km/s", "400,000 km/s", "500,000 km/s"], answer: 0 },
+    { question: "Question 17: What is the capital of Italy?", options: ["Paris", "Rome", "Madrid", "Lisbon"], answer: 1 },
+    { question: "Question 18: What gas do plants absorb?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Helium"], answer: 2 },
+    { question: "Question 19: What is the largest desert?", options: ["Sahara", "Antarctic Desert", "Gobi", "Kalahari"], answer: 1 },
+    { question: "Question 20: What is 15 x 2?", options: ["20", "25", "30", "35"], answer: 2 },
+    { question: "Question 21: What is the capital of India?", options: ["Delhi", "Mumbai", "Kolkata", "Chennai"], answer: 0 },
+    { question: "Question 22: Who invented the telephone?", options: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Marconi"], answer: 0 },
+    { question: "Question 23: What is the hardest natural substance?", options: ["Gold", "Iron", "Diamond", "Graphite"], answer: 2 },
+    { question: "Question 24: What is the tallest mountain?", options: ["K2", "Kilimanjaro", "Everest", "Denali"], answer: 2 },
+    { question: "Question 25: How many colors are in a rainbow?", options: ["5", "6", "7", "8"], answer: 2 },
+    { question: "Question 26: What is the freezing point of water?", options: ["0°C", "10°C", "20°C", "-10°C"], answer: 0 },
+    { question: "Question 27: What is the capital of Australia?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], answer: 2 },
+    { question: "Question 28: What is the largest planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: 2 },
+    { question: "Question 29: Who discovered penicillin?", options: ["Alexander Fleming", "Marie Curie", "Isaac Newton", "Louis Pasteur"], answer: 0 },
+    { question: "Question 30: What is the longest river?", options: ["Amazon", "Nile", "Yangtze", "Mississippi"], answer: 1 },
+    { question: "Question 31: What is the capital of Canada?", options: ["Toronto", "Ottawa", "Vancouver", "Montreal"], answer: 1 },
+    { question: "Question 32: What is 5 x 5?", options: ["20", "25", "30", "35"], answer: 1 },
+    { question: "Question 33: What is the chemical symbol for gold?", options: ["Fe", "Ag", "Pb", "Au"], answer: 3 },
+    { question: "Question 34: What is the smallest country in the world?", options: ["Monaco", "Vatican City", "Malta", "Liechtenstein"], answer: 1 },
+    { question: "Question 35: What is the largest bone in the human body?", options: ["Femur", "Humerus", "Tibia", "Skull"], answer: 0 },
+    { question: "Question 36: What is the process by which plants make their food?", options: ["Respiration", "Photosynthesis", "Digestion", "Transpiration"], answer: 1 },
+    { question: "Question 37: What is 12 x 12?", options: ["120", "122", "144", "148"], answer: 2 },
+    { question: "Question 38: What is the capital of Germany?", options: ["Berlin", "Munich", "Frankfurt", "Hamburg"], answer: 0 },
+    { question: "Question 39: Who wrote 'The Odyssey'?", options: ["Homer", "Virgil", "Sophocles", "Plato"], answer: 0 },
+    { question: "Question 40: What is the largest organ in the human body?", options: ["Liver", "Brain", "Skin", "Heart"], answer: 2 },
+    { question: "Question 41: What is the capital of Russia?", options: ["Moscow", "St. Petersburg", "Kazan", "Sochi"], answer: 0 },
+    { question: "Question 42: What is the square root of 144?", options: ["10", "12", "14", "16"], answer: 1 },
+    { question: "Question 43: What is the main gas in the Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: 2 },
+    { question: "Question 44: Who discovered electricity?", options: ["Benjamin Franklin", "Nikola Tesla", "Thomas Edison", "James Watt"], answer: 0 },
+    { question: "Question 45: What is the largest continent?", options: ["Africa", "Asia", "Europe", "North America"], answer: 1 },
+    { question: "Question 46: How many legs does a spider have?", options: ["6", "8", "10", "12"], answer: 1 },
+    { question: "Question 47: What is the hardest natural mineral?", options: ["Quartz", "Topaz", "Diamond", "Corundum"], answer: 2 },
+    { question: "Question 48: What is the capital of South Korea?", options: ["Tokyo", "Seoul", "Beijing", "Bangkok"], answer: 1 },
+    { question: "Question 49: What is the value of pi (approx)?", options: ["3.12", "3.14", "3.16", "3.18"], answer: 1 },
+    { question: "Question 50: Who was the first president of the United States?", options: ["Abraham Lincoln", "George Washington", "John Adams", "Thomas Jefferson"], answer: 1 },
+    { question: "Question 51: What is the main ingredient in sushi?", options: ["Rice", "Bread", "Pasta", "Potatoes"], answer: 0 },
+    { question: "Question 52: What is the capital of Egypt?", options: ["Cairo", "Alexandria", "Giza", "Luxor"], answer: 0 },
+    { question: "Question 53: What is the chemical symbol for oxygen?", options: ["O", "O2", "Ox", "O3"], answer: 0 },
+    { question: "Question 54: What is the smallest unit of matter?", options: ["Atom", "Molecule", "Electron", "Proton"], answer: 0 },
+    { question: "Question 55: What is 7 x 8?", options: ["48", "54", "56", "64"], answer: 2 },
+    { question: "Question 56: What is the capital of Brazil?", options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"], answer: 2 },
+    { question: "Question 57: Who painted the Sistine Chapel ceiling?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], answer: 0 },
+    { question: "Question 58: What is the freezing point of water in Fahrenheit?", options: ["32°F", "0°F", "100°F", "212°F"], answer: 0 },
+    { question: "Question 59: What is the largest island in the world?", options: ["Australia", "Greenland", "New Guinea", "Madagascar"], answer: 1 },
+    { question: "Question 60: What is the smallest ocean in the world?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], answer: 2 },
+    { question: "Question 61: What is the capital of Mexico?", options: ["Guadalajara", "Cancun", "Mexico City", "Tijuana"], answer: 2 },
+    { question: "Question 62: What is the speed of sound?", options: ["343 m/s", "300 m/s", "400 m/s", "500 m/s"], answer: 0 },
+    { question: "Question 63: What is the largest animal on land?", options: ["Elephant", "Rhino", "Giraffe", "Hippo"], answer: 0 },
+    { question: "Question 64: What is the capital of Argentina?", options: ["Buenos Aires", "Cordoba", "Rosario", "Mendoza"], answer: 0 },
+    { question: "Question 65: Who invented the light bulb?", options: ["Edison", "Tesla", "Faraday", "Newton"], answer: 0 },
+    { question: "Question 66: What is the tallest building in the world?", options: ["Burj Khalifa", "Shanghai Tower", "Abraj Al-Bait", "One World Trade Center"], answer: 0 },
+    { question: "Question 67: What is the capital of the USA?", options: ["New York", "Washington D.C.", "Los Angeles", "Chicago"], answer: 1 },
+    { question: "Question 68: What is the symbol for potassium?", options: ["P", "K", "Po", "Pt"], answer: 1 },
+    { question: "Question 69: What is the largest fish?", options: ["Shark", "Whale Shark", "Dolphin", "Tuna"], answer: 1 },
+    { question: "Question 70: What is the capital of Spain?", options: ["Barcelona", "Madrid", "Seville", "Valencia"], answer: 1 },
+    { question: "Question 71: What is the smallest particle in an atom?", options: ["Proton", "Neutron", "Electron", "Nucleus"], answer: 2 },
+    { question: "Question 72: Who discovered America?", options: ["Columbus", "Magellan", "Cook", "Vespucci"], answer: 0 },
+    { question: "Question 73: What is the capital of China?", options: ["Shanghai", "Beijing", "Hong Kong", "Shenzhen"], answer: 1 },
+    { question: "Question 74: What is 9 x 9?", options: ["81", "72", "64", "49"], answer: 0 },
+    { question: "Question 75: Who was the first man on the moon?", options: ["Buzz Aldrin", "Neil Armstrong", "Yuri Gagarin", "Michael Collins"], answer: 1 },
+    { question: "Question 76: What is the chemical formula for table salt?", options: ["NaCl", "H2O", "CO2", "KCl"], answer: 0 },
+    { question: "Question 77: What is the largest volcano?", options: ["Mauna Loa", "Krakatoa", "Mount Vesuvius", "Etna"], answer: 0 },
+    { question: "Question 78: What is the capital of South Africa?", options: ["Pretoria", "Cape Town", "Johannesburg", "Durban"], answer: 0 },
+    { question: "Question 79: What is the largest bird?", options: ["Eagle", "Ostrich", "Penguin", "Albatross"], answer: 1 },
+    { question: "Question 80: What is the capital of Thailand?", options: ["Bangkok", "Phuket", "Chiang Mai", "Pattaya"], answer: 0 },
+    { question: "Question 81: What is 8 x 8?", options: ["64", "48", "56", "72"], answer: 0 },
+    { question: "Question 82: What is the capital of Saudi Arabia?", options: ["Jeddah", "Riyadh", "Mecca", "Medina"], answer: 1 },
+    { question: "Question 83: What is the largest river in the world?", options: ["Amazon", "Nile", "Yangtze", "Mississippi"], answer: 0 },
+    { question: "Question 84: What is the capital of Turkey?", options: ["Istanbul", "Ankara", "Izmir", "Antalya"], answer: 1 },
+    { question: "Question 85: What is the fastest land animal?", options: ["Cheetah", "Lion", "Horse", "Leopard"], answer: 0 },
+    { question: "Question 86: What is the capital of Pakistan?", options: ["Karachi", "Lahore", "Islamabad", "Peshawar"], answer: 2 },
+    { question: "Question 87: What is the chemical symbol for iron?", options: ["Fe", "Ir", "In", "I"], answer: 0 },
+    { question: "Question 88: What is the smallest bone in the human body?", options: ["Stapes", "Femur", "Ulna", "Tibia"], answer: 0 },
+    { question: "Question 89: What is the largest organelle in a cell?", options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi Apparatus"], answer: 1 },
+    { question: "Question 90: What is the capital of Sweden?", options: ["Oslo", "Stockholm", "Copenhagen", "Helsinki"], answer: 1 },
+    { question: "Question 91: What is the largest lake in the world?", options: ["Lake Superior", "Caspian Sea", "Lake Victoria", "Lake Baikal"], answer: 1 },
+    { question: "Question 92: What is 10 x 10?", options: ["100", "110", "120", "90"], answer: 0 },
+    { question: "Question 93: What is the capital of Norway?", options: ["Oslo", "Bergen", "Copenhagen", "Stockholm"], answer: 0 },
+    { question: "Question 94: What is the tallest tree in the world?", options: ["Sequoia", "Redwood", "Oak", "Pine"], answer: 1 },
+    { question: "Question 95: What is the capital of Portugal?", options: ["Lisbon", "Porto", "Braga", "Faro"], answer: 0 },
+    { question: "Question 96: What is the chemical symbol for helium?", options: ["He", "H", "Hi", "Hm"], answer: 0 },
+    { question: "Question 97: What is the smallest country in Europe?", options: ["Vatican City", "Monaco", "San Marino", "Andorra"], answer: 0 },
+    { question: "Question 98: What is the capital of Indonesia?", options: ["Jakarta", "Bali", "Surabaya", "Medan"], answer: 0 },
+    { question: "Question 99: What is the fastest bird?", options: ["Peregrine Falcon", "Eagle", "Hawk", "Owl"], answer: 0 },
+    { question: "Question 100: What is the square root of 81?", options: ["7", "8", "9", "10"], answer: 2 }
+    ];
+
+    // State Variables
+    let currentQuestion = 0;
+    const userAnswers = Array(questions.length).fill(null);
+
+    // Elements
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const submitBtn = document.getElementById("submit");
+    const scoreEl = document.getElementById("score");
+
+    // Load Question
+    function loadQuestion() {
+      const questionData = questions[currentQuestion];
+      questionEl.textContent = questionData.question;
+      optionsEl.innerHTML = "";
+
+      questionData.options.forEach((option, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <label>
+            <input type="radio" name="option" value="${index}" ${userAnswers[currentQuestion] === index ? "checked" : ""}>
+            ${option}
+          </label>
+        `;
+        optionsEl.appendChild(li);
+      });
+
+      prevBtn.style.display = currentQuestion === 0 ? "none" : "inline-block";
+      nextBtn.style.display = currentQuestion === questions.length - 1 ? "none" : "inline-block";
+      submitBtn.style.display = currentQuestion === questions.length - 1 ? "inline-block" : "none";
+    }
+
+    // Navigate to Next Question
+    function nextQuestion() {
+      saveAnswer();
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      }
+    }
+
+    // Navigate to Previous Question
+    function prevQuestion() {
+      saveAnswer();
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    // Save User Answer
+    function saveAnswer() {
+      const selectedOption = document.querySelector('input[name="option"]:checked');
+      if (selectedOption) {
+        userAnswers[currentQuestion] = parseInt(selectedOption.value);
+      }
+    }
+
+    // Submit Quiz
+    function submitQuiz() {
+      saveAnswer();
+      let score = 0;
+
+      questions.forEach((q, index) => {
+        if (userAnswers[index] === q.answer) {
+          score++;
+        }
+      });
+
+      quiz.style.display = "none";
+      scoreEl.style.display = "block";
+      scoreEl.textContent = `You scored ${score} out of ${questions.length}`;
+    }
+
+    // Initialize Quiz
+    loadQuestion();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+ <html>
+  <body>
+<div id="timer">Time Remaining: <span id="time">400</span> seconds</div>
+<div id="quiz-container">  
+    <!-- Quiz content here -->
+</div>
+<script>
+    let timeRemaining = 400; // Timer duration in seconds
+let timerElement = document.getElementById('time');
+let timer;
+
+function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+
+    // Start the timer
+    timer = setInterval(() => {
+        timeRemaining--;
+        timerElement.textContent = timeRemaining;
+
+        if (timeRemaining <= 0) {
+            clearInterval(timer);
+            alert("Time's up! The quiz will now end.");
+            endQuiz();
+        }
+    }, 1000);
+}
+timer = setInterval(() => {
+    timeRemaining--;
+    console.log(timeRemaining); // Debugging
+    timerElement.textContent = timeRemaining;
+
+    if (timeRemaining <= 0) {
+        clearInterval(timer);
+        alert("Time's up! The quiz will now end.");
+        endQuiz();
+    }
+}, 1000);
+
+function endQuiz() {
+    clearInterval(timer); // Stop the timer
+    alert(`Your score is: ${score}/${questions.length}`);
+    location.reload(); // Reload the page or navigate to a summary
+} 
+</script>
+  <style>
+#timer {
+    font-size: 20px;
+    font-weight: bold;
+    color: red;
+    margin-bottom: 20px;
+    text-align: center;
+}
+</script>
+</body>
+</html>   
